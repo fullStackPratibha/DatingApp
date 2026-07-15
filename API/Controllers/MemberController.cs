@@ -10,9 +10,9 @@ namespace API.Controllers;
     public class MemberController(AppDbContext context) : ControllerBase
 {
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<AppUser>>> GetMembers()
+        public ActionResult<IReadOnlyList<AppUser>> GetMembers()
     {
-        var members = await context.Users.ToListAsync();
+        var members = context.Users.ToList();
         return members;
     }
 
