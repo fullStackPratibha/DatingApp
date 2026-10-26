@@ -1,26 +1,39 @@
 import { Component, signal ,inject, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
+import { Nav } from '../layout/nav/nav';
+import { AccountService } from '../core/services/account-service';
+import { Home } from '../features/home/home';
+import {User} from '../types/user'
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [Nav, Home],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App implements OnInit  {
+  private accountService = inject(AccountService);
   private http = inject(HttpClient);
   protected title = 'Dating App';
-  protected member = signal<any>([]);
+  protected member = signal<User[]>([]);
 
 
   async ngOnInit() {
     this.member.set(await this.getMembers())
+    this.setCurrentUser();
+  }
+
+  setCurrentUser(){
+    const userString = localStorage.getItem('user');
+    if(!userString) return;
+    const user = JSON.parse(userString);
+    this.accountService.currentUser.set(user)
   }
 
   async getMembers(){
     try{
-      return lastValueFrom(this.http.get('https://localhost:5001/api/member'));
+      return lastValueFrom(this.http.get<User[]>('https://localhost:5001/api/member'));
     }catch(error){
       console.log(error);
       throw error;
